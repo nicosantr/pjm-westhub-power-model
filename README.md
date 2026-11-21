@@ -90,9 +90,15 @@ Raw data files are not committed; the notebook pulls and caches them.
 3. Robustness: rerun the year-by-year sensitivities excluding the largest spike days.
 4. Live mode: forecast the coming week from the Open-Meteo forecast API and log results daily.
 
-## NYISO extension (in progress)
+## NYISO extension and New York project finance (in progress)
 
-`nyiso_zone_j_model.ipynb` applies the same pipeline to NYISO Zone J (NYC) and Zone K (Long Island), and compares Zone J with PJM West. Results will be added after the first full run.
+`nyiso_zone_j_model.ipynb` applies the same pipeline to NYISO Zone J (NYC) and Zone K (Long Island), compares Zone J with PJM West, and adds three project-finance modules:
+
+- **Capture price:** price actually earned by Long Island solar and offshore wind (south of Long Island) vs. the around-the-clock average, by zone and year
+- **Virtual PPA:** monthly cash flows of a fixed-price PPA on a 100 MW Long Island solar project, with shape, basis (Zone J vs. K), and volume risk
+- **Battery arbitrage:** energy-arbitrage revenue of a 4-hour battery in NYC and Long Island, $/kW-year
+
+Generation profiles are modeled from hourly weather (Open-Meteo), not metered output. Capacity payments, RECs/ORECs and ancillary services are excluded. Results will be added after the first full run.
 
 ## How to run
 

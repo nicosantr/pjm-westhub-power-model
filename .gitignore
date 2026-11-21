@@ -3,6 +3,8 @@ pjm_daily.csv
 nyiso_daily.csv
 henry_hub.csv
 transco_z6_ny.csv
+nyiso_hourly.csv
+ny_profiles.csv
 # Python / notebook clutter
 __pycache__/
 .ipynb_checkpoints/
