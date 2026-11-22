@@ -94,12 +94,12 @@ Raw data files are not committed; the notebook pulls and caches them.
 
 `nyiso_zone_j_model.ipynb` applies the same pipeline to New York's wholesale market (NYISO), using hourly day-ahead prices for Zone J (New York City) and Zone K (Long Island) from the Grid Status API (`nyiso_lmp_day_ahead_hourly`, zones `N.Y.C.` and `LONGIL`), with New York City and Islip weather.
 
-### Forecast results (2026 out-of-sample, 225 on-peak days)
+### Forecast results (2026 out-of-sample, 226 on-peak days)
 
 | Zone | Best weather/gas model MAE | Naive previous-day MAE | Reduction | Winter MAE (model vs. naive) |
 |---|---:|---:|---:|---:|
-| J, New York City | $12.90 | $19.69 | 34% | $30.63 vs. $53.13 |
-| K, Long Island | $11.93 | $17.54 | 32% | $21.61 vs. $32.44 |
+| J, New York City | $12.85 | $19.61 | 34% | $30.63 vs. $53.13 |
+| K, Long Island | $11.88 | $17.47 | 32% | $21.61 vs. $32.44 |
 
 Best model in both zones: regression on weather, gas, day-of-week and month effects, plus the previous day's price.
 
@@ -117,7 +117,7 @@ Training-period sensitivities ($/MWh on-peak, 2023 to 2025):
 | 2023 | $38.71 | $39.22 | -$0.51 |
 | 2024 | $45.31 | $40.91 | +$4.40 |
 | 2025 | $76.75 | $60.30 | +$16.45 |
-| 2026 | $79.98 | $90.19 | -$10.22 |
+| 2026 (through Nov. 20) | $79.82 | $90.15 | -$10.33 |
 
 - From 2025 to 2026, PJM West rose 50% while NYC rose 4%, flipping NYC from a $16 premium to a $10 discount.
 - Strong seasonality: NYC averaged $42/MWh above PJM in January (2023 to 2026) and $16/MWh below it in October.
@@ -145,16 +145,40 @@ Solar's discount widened after 2024, while offshore wind earns a premium because
 | 2023 | 129.3 | $41.03 | -$0.99M | -$0.94M |
 | 2024 | 131.0 | $43.12 | -$0.73M | -$0.74M |
 | 2025 | 129.8 | $61.89 | +$1.72M | -$0.39M |
-| 2026 | 127.3 | $63.83 | +$1.93M | -$0.08M |
+| 2026 | 127.6 | $63.77 | +$1.93M | -$0.08M |
 
-Risks: shape (95.8% average solar capture rate), basis (-$4.15/MWh average, Zone J minus Zone K per solar MWh), volume (10.3% average monthly deviation from normal).
+Risks: shape (95.8% average solar capture rate), basis (-$4.15/MWh average, Zone J minus Zone K per solar MWh), volume (6.2% average monthly deviation from normal).
 
 **4-hour battery energy arbitrage**, Zone J, annualized: $24/kW-year (2023), $27 (2024), $46 (2025), $51 (2026). Assumes perfect day-ahead foresight and one cycle a day, so it is an upper bound on energy arbitrage.
 
-### Added, results pending next run
-- **Utility hedging risk:** cost of buying 100 MW of NYC on-peak power at day-ahead prices vs. a fixed price set at the prior year's average, with the 1-in-20 worst daily overrun and worst month by year
-- **Offshore wind PPA:** 100 MW offshore wind delivering into NYC (Zone J), compared with the Long Island solar PPA
-- **Forecast ranges:** 80% price range around each 2026 Zone J forecast, and the share of days that actually fell inside it
+### Utility hedging risk
+
+A utility buying 100 MW of NYC on-peak power (1,600 MWh per weekday) at day-ahead prices vs. a fixed price set at the prior year's average (a proxy; actual forward prices not used):
+
+| Year | Fixed price | Avg market | Market cost | Extra cost vs. fixed | 1-in-20 worst day | Worst month |
+|---|---:|---:|---:|---:|---:|---:|
+| 2024 | $38.71 | $45.31 | $18.6M | +$2.7M | $96.8K | $1.5M |
+| 2025 | $45.31 | $76.75 | $31.3M | +$12.8M | $204.4K | $4.0M |
+| 2026 | $76.75 | $79.82 | $29.1M | +$1.1M | $234.2K | $4.9M |
+
+Daily tail risk (1-in-20 worst day) rose 2.4x from 2024 to 2026; the worst single day in 2026 cost $1.30M more than the fixed price (Winter Storm Fern, January).
+
+### Offshore wind vs. solar PPA
+
+Same fixed-price contract, each strike set at the project's own 2023 to 2025 capture price ($M; positive = buyer gains):
+
+| Year | LI solar (Zone K, strike $48.67) | Offshore wind into NYC (Zone J, strike $49.51) |
+|---|---:|---:|
+| 2023 | -$0.99M | -$4.52M |
+| 2024 | -$0.73M | -$2.61M |
+| 2025 | +$1.72M | +$7.13M |
+| 2026 | +$1.93M | +$9.19M |
+
+Offshore wind produces about 2.5x the energy of the same-size solar farm and earns most in winter, so a fixed price moves far more money between buyer and project when prices rise.
+
+### Forecast ranges
+
+An 80% range around each 2026 Zone J forecast (from 2023 to 2025 errors) contained the actual price on 75% of days, average width $23/MWh. Slightly too narrow: 2026 was more volatile than the training years.
 
 ### New York limitations
 - Henry Hub understates NYC winter gas cost; Transco Zone 6 NY has no free daily series.
