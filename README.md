@@ -90,15 +90,71 @@ Raw data files are not committed; the notebook pulls and caches them.
 3. Robustness: rerun the year-by-year sensitivities excluding the largest spike days.
 4. Live mode: forecast the coming week from the Open-Meteo forecast API and log results daily.
 
-## NYISO extension and New York project finance (in progress)
+## New York extension: NYISO Zone J (NYC) and Zone K (Long Island)
 
-`nyiso_zone_j_model.ipynb` applies the same pipeline to NYISO Zone J (NYC) and Zone K (Long Island), compares Zone J with PJM West, and adds three project-finance modules:
+`nyiso_zone_j_model.ipynb` applies the same pipeline to New York's wholesale market (NYISO), using hourly day-ahead prices for Zone J (New York City) and Zone K (Long Island) from the Grid Status API (`nyiso_lmp_day_ahead_hourly`, zones `N.Y.C.` and `LONGIL`), with New York City and Islip weather.
 
-- **Capture price:** price actually earned by Long Island solar and offshore wind (south of Long Island) vs. the around-the-clock average, by zone and year
-- **Virtual PPA:** monthly cash flows of a fixed-price PPA on a 100 MW Long Island solar project, with shape, basis (Zone J vs. K), and volume risk
-- **Battery arbitrage:** energy-arbitrage revenue of a 4-hour battery in NYC and Long Island, $/kW-year
+### Forecast results (2026 out-of-sample, 225 on-peak days)
 
-Generation profiles are modeled from hourly weather (Open-Meteo), not metered output. Capacity payments, RECs/ORECs and ancillary services are excluded. Results will be added after the first full run.
+| Zone | Best weather/gas model MAE | Naive previous-day MAE | Reduction | Winter MAE (model vs. naive) |
+|---|---:|---:|---:|---:|
+| J, New York City | $12.90 | $19.69 | 34% | $30.63 vs. $53.13 |
+| K, Long Island | $11.93 | $17.54 | 32% | $21.61 vs. $32.44 |
+
+Best model in both zones: regression on weather, gas, day-of-week and month effects, plus the previous day's price.
+
+Training-period sensitivities ($/MWh on-peak, 2023 to 2025):
+
+| Zone | Per heating degree day | Per cooling degree day | Per $1/MMBtu gas |
+|---|---:|---:|---:|
+| J | 2.24 | 3.59 | 16.47 |
+| K | 2.20 | 5.96 | 14.92 |
+
+### NYC vs. PJM West (on-peak, $/MWh)
+
+| Year | NYC (Zone J) | PJM West | Spread |
+|---|---:|---:|---:|
+| 2023 | $38.71 | $39.22 | -$0.51 |
+| 2024 | $45.31 | $40.91 | +$4.40 |
+| 2025 | $76.75 | $60.30 | +$16.45 |
+| 2026 | $79.98 | $90.19 | -$10.22 |
+
+- From 2025 to 2026, PJM West rose 50% while NYC rose 4%, flipping NYC from a $16 premium to a $10 discount.
+- Strong seasonality: NYC averaged $42/MWh above PJM in January (2023 to 2026) and $16/MWh below it in October.
+- Widest day: Jan. 28, 2026 (Winter Storm Fern), NYC $888.96 vs. PJM $564.77.
+
+### Project-finance modules
+
+Generation is modeled from hourly weather (Open-Meteo), not metered output: Long Island solar (15.2% modeled capacity factor) and offshore wind south of Long Island (39.5%).
+
+**Capture rate** (price earned / around-the-clock average price):
+
+| Year | Zone K solar | Zone K offshore wind | Zone J solar | Zone J offshore wind |
+|---|---:|---:|---:|---:|
+| 2023 | 101% | 102% | 100% | 104% |
+| 2024 | 99% | 107% | 95% | 106% |
+| 2025 | 90% | 104% | 90% | 104% |
+| 2026 | 93% | 110% | 91% | 114% |
+
+Solar's discount widened after 2024, while offshore wind earns a premium because it produces more in winter, when New York prices are highest.
+
+**Virtual PPA**, 100 MW Long Island solar, strike $48.67/MWh (2023 to 2025 capture price):
+
+| Year | Generation (GWh) | Zone K capture | Buyer settlement at Zone K | Basis if settled at Zone J |
+|---|---:|---:|---:|---:|
+| 2023 | 129.3 | $41.03 | -$0.99M | -$0.94M |
+| 2024 | 131.0 | $43.12 | -$0.73M | -$0.74M |
+| 2025 | 129.8 | $61.89 | +$1.72M | -$0.39M |
+| 2026 | 127.3 | $63.83 | +$1.93M | -$0.08M |
+
+Risks: shape (95.8% average solar capture rate), basis (-$4.15/MWh average, Zone J minus Zone K per solar MWh), volume (10.3% average monthly deviation from normal).
+
+**4-hour battery energy arbitrage**, Zone J, annualized: $24/kW-year (2023), $27 (2024), $46 (2025), $51 (2026). Assumes perfect day-ahead foresight and one cycle a day, so it is an upper bound on energy arbitrage.
+
+### New York limitations
+- Henry Hub understates NYC winter gas cost; Transco Zone 6 NY has no free daily series.
+- Capacity payments (large in NYC), RECs/ORECs, and ancillary services are excluded from project revenue.
+- Modeled, not metered, generation profiles.
 
 ## How to run
 
