@@ -151,6 +151,11 @@ Risks: shape (95.8% average solar capture rate), basis (-$4.15/MWh average, Zone
 
 **4-hour battery energy arbitrage**, Zone J, annualized: $24/kW-year (2023), $27 (2024), $46 (2025), $51 (2026). Assumes perfect day-ahead foresight and one cycle a day, so it is an upper bound on energy arbitrage.
 
+### Added, results pending next run
+- **Utility hedging risk:** cost of buying 100 MW of NYC on-peak power at day-ahead prices vs. a fixed price set at the prior year's average, with the 1-in-20 worst daily overrun and worst month by year
+- **Offshore wind PPA:** 100 MW offshore wind delivering into NYC (Zone J), compared with the Long Island solar PPA
+- **Forecast ranges:** 80% price range around each 2026 Zone J forecast, and the share of days that actually fell inside it
+
 ### New York limitations
 - Henry Hub understates NYC winter gas cost; Transco Zone 6 NY has no free daily series.
 - Capacity payments (large in NYC), RECs/ORECs, and ancillary services are excluded from project revenue.
